@@ -1,0 +1,20 @@
+[PASS] T3.1 Receptionist denied on base patient table
+    role=receptionist
+    sql=SELECT * FROM clinic.patients
+    result: denied, 42501 permission denied for table patients
+[PASS] T3.2 Doctor cannot delete patients
+    role=doctor_a
+    sql=DELETE FROM clinic.patients WHERE patient_id = 2
+    result: denied, 42501 permission denied for table patients
+[PASS] T3.3 DBA cannot modify clinical data
+    role=db_admin
+    sql=UPDATE clinic.patients SET phone = 'x'
+    result: denied, 42501 permission denied for table patients
+[PASS] T3.4 Auditor denied on clinical data
+    role=auditor
+    sql=SELECT * FROM clinic.patients
+    result: denied, 42501 permission denied for table patients
+[PASS] T3.5 Auditor can inspect privileges
+    role=auditor
+    sql=SELECT r AS role, has_table_privilege(r, 'clinic.patients', 'SELECT') AS can_read_patients FROM unnest(ARRAY['doctor_a','receptionist','db_admin','auditor']) AS r
+    result: allowed, 4 rows, sample=[{"role":"doctor_a","can_read_patients":true},{"role":"receptionist","can_read_patients":false},{"role":"db_admin","can_read_patients":true}]

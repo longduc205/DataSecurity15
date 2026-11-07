@@ -1,0 +1,3 @@
+PUT /ssl-enforcement -> HTTP 200 {"currentConfig":{"database":true},"appliedSuccessfully":true}
+GET /network-restrictions -> HTTP 200 {"entitlement":"allowed","config":{"dbAllowedCidrs":["<ip>/0"],"dbAllowedCidrsV6":["::/0"]},"status":"applied"}
+Project region: ap-southeast-2, Postgres: <ip>

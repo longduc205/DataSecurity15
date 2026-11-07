@@ -1,0 +1,27 @@
+Run at 2026-11-07T06:43:41.926Z
+PASS  T1.1  Client connection uses TLS 1.2 or newer
+PASS  T1.2  Unencrypted connection is rejected
+PASS  T1.3  SSL enforcement reported as active
+PASS  T1.4  IP outside the allowlist is blocked
+PASS  T2.1  Anon key cannot read clinic.patients
+PASS  T2.2  Control: a public table granted to anon without RLS is readable
+PASS  T3.1  Receptionist denied on base patient table
+PASS  T3.2  Doctor cannot delete patients
+PASS  T3.3  DBA cannot modify clinical data
+PASS  T3.4  Auditor denied on clinical data
+PASS  T3.5  Auditor can inspect privileges
+PASS  T4.1  Doctor A sees only own 100 patients
+PASS  T4.2  Doctor B sees only own 100 patients
+PASS  T4.3  Doctor A cannot read a patient of doctor B
+PASS  T4.4  Doctor A update on a patient of doctor B affects 0 rows
+PASS  T4.5  DBA policy shows all 200 rows
+PASS  T4.6  Limitation: platform admin role bypass status recorded
+PASS  T5.1  Receptionist sees masked phone and email
+PASS  T5.2  Filtering on the masked column does not reveal the real value
+PASS  T5.3  Doctor sees the real phone of an own patient
+PASS  T6.1  DBA reads only ciphertext of sensitive columns
+PASS  T6.2  Client holding the key recovers the plaintext
+PASS  T6.3  Modified ciphertext is detected
+PASS  T6.4  Ciphertext copied to another row is detected
+
+24/24 passed

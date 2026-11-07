@@ -1,0 +1,10 @@
+Runs per operation: 100 after 10 warm-up runs; 200 rows; client in Vietnam, database in ap-southeast-2.
+
+Operation | median ms | p95 ms
+Lookup by national ID (plain) | 236.86 | 237.71
+Lookup by national ID (encrypted) | 236.88 | 237.62
+Read 200 rows (plain) | 237.54 | 238.10
+Read 200 rows (encrypted) | 242.07 | 479.11
+Insert 1 row (plain) | 475.43 | 476.41
+Insert 1 row (encrypted) | 475.71 | 476.77
+AES-256-GCM encrypt+decrypt, local only, 10000 runs | 0.0187 | 0.0375

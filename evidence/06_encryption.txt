@@ -1,0 +1,10 @@
+[PASS] T6.1 DBA reads only ciphertext of sensitive columns
+    role=db_admin
+    sql=SELECT patient_id, national_id_enc, diagnosis_enc FROM clinic.patients WHERE patient_id = 2
+    result: allowed, 1 rows, sample=[{"patient_id":2,"national_id_enc":"HBfGHIaxtrDFIZ2aG/aP2+aDxmJCsD/I9H+G9Defh6ghNzCEc6I43A==","diagnosis_enc":"MSZdgN3KXWVOZ3o0qy8TKPDBgZ0oAUH8c3SKkkudbmqWbXW4SoZwY15lBA=="}]
+[PASS] T6.2 Client holding the key recovers the plaintext
+    patient 2 diagnosis decrypted: Type 2 diabetes; national id format valid: true
+[PASS] T6.3 Modified ciphertext is detected
+    decryption refused: Unsupported state or unable to authenticate data
+[PASS] T6.4 Ciphertext copied to another row is detected
+    decryption refused: Unsupported state or unable to authenticate data

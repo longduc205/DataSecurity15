@@ -1,0 +1,8 @@
+[PASS] T1.1 Client connection uses TLS 1.2 or newer
+    negotiated protocol: TLSv1.3
+[PASS] T1.2 Unencrypted connection is rejected
+    rejected: (ESSLREQUIRED) SSL connection is required for user: postgres
+[PASS] T1.3 SSL enforcement reported as active
+    API: {"currentConfig":{"database":true},"appliedSuccessfully":true}
+[PASS] T1.4 IP outside the allowlist is blocked
+    blocked: (EADDRNOTALLOWED) address not in tenant allow_list: <ip>

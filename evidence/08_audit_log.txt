@@ -1,0 +1,96 @@
+20 pgaudit entries, 8 permission-denied entries
+
+Traceability
+FOUND    denied  receptionist  SELECT * FROM clinic.patients
+FOUND    denied  doctor_a      DELETE FROM clinic.patients
+FOUND    denied  db_admin      UPDATE clinic.patients
+FOUND    denied  auditor       SELECT * FROM clinic.patients
+FOUND    audit   doctor_a      UPDATE clinic.patients SET diagnosis_enc = 'tampered'
+FOUND    audit   receptionist  clinic.patients_masked
+FOUND    audit   db_admin      national_id_enc
+
+Entries
+2026-11-07 06:33:42.200000000  user=receptionist  ERROR  42501
+    permission denied for table patients
+    query: SELECT * FROM clinic.patients
+2026-11-07 06:33:44.158000000  user=doctor_a  ERROR  42501
+    permission denied for table patients
+    query: DELETE FROM clinic.patients WHERE patient_id = 2
+2026-11-07 06:33:46.112000000  user=db_admin  ERROR  42501
+    permission denied for table patients
+    query: UPDATE clinic.patients SET phone = 'x'
+2026-11-07 06:33:48.081000000  user=auditor  ERROR  42501
+    permission denied for table patients
+    query: SELECT * FROM clinic.patients
+2026-11-07 06:33:50.004000000  user=auditor  LOG  00000
+    AUDIT: SESSION,1,1,READ,SELECT,,,"SELECT r AS role, has_table_privilege(r, 'clinic.patients', 'SELECT') AS can_read_patients FROM unnest(ARRAY['doctor_a','receptionist','db_admin','auditor']) AS r",<not logged>
+    query: 
+2026-11-07 06:33:51.949000000  user=doctor_a  LOG  00000
+    AUDIT: SESSION,1,1,READ,SELECT,,,"SELECT count(*)::int AS visible, min(doctor_id) AS min_doc, max(doctor_id) AS max_doc FROM clinic.patients",<not logged>
+    query: 
+2026-11-07 06:33:55.091000000  user=doctor_b  LOG  00000
+    AUDIT: SESSION,1,1,READ,SELECT,,,"SELECT count(*)::int AS visible, min(doctor_id) AS min_doc, max(doctor_id) AS max_doc FROM clinic.patients",<not logged>
+    query: 
+2026-11-07 06:33:57.159000000  user=doctor_a  LOG  00000
+    AUDIT: SESSION,2,1,READ,SELECT,,,SELECT patient_id FROM clinic.patients WHERE patient_id = 1,<not logged>
+    query: 
+2026-11-07 06:33:59.042000000  user=doctor_a  LOG  00000
+    AUDIT: SESSION,3,1,WRITE,UPDATE,,,UPDATE clinic.patients SET diagnosis_enc = 'tampered' WHERE patient_id = 1,<not logged>
+    query: 
+2026-11-07 06:34:01.236000000  user=db_admin  LOG  00000
+    AUDIT: SESSION,1,1,READ,SELECT,,,SELECT count(*)::int AS visible FROM clinic.patients,<not logged>
+    query: 
+2026-11-07 06:34:06.238000000  user=receptionist  LOG  00000
+    AUDIT: SESSION,1,1,READ,SELECT,,,SELECT * FROM clinic.patients_masked ORDER BY patient_id LIMIT 3,<not logged>
+    query: 
+2026-11-07 06:34:08.410000000  user=receptionist  LOG  00000
+    AUDIT: SESSION,2,1,READ,SELECT,,,SELECT patient_id FROM clinic.patients_masked WHERE phone LIKE '000%',<not logged>
+    query: 
+2026-11-07 06:34:10.602000000  user=doctor_a  LOG  00000
+    AUDIT: SESSION,4,1,READ,SELECT,,,"SELECT patient_id, phone FROM clinic.patients ORDER BY patient_id LIMIT 1",<not logged>
+    query: 
+2026-11-07 06:34:12.846000000  user=db_admin  LOG  00000
+    AUDIT: SESSION,2,1,READ,SELECT,,,"SELECT patient_id, national_id_enc, diagnosis_enc FROM clinic.patients WHERE patient_id = 2",<not logged>
+    query: 
+2026-11-07 06:44:27.024000000  user=receptionist  ERROR  42501
+    permission denied for table patients
+    query: SELECT * FROM clinic.patients
+2026-11-07 06:44:29.031000000  user=doctor_a  ERROR  42501
+    permission denied for table patients
+    query: DELETE FROM clinic.patients WHERE patient_id = 2
+2026-11-07 06:44:31.044000000  user=db_admin  ERROR  42501
+    permission denied for table patients
+    query: UPDATE clinic.patients SET phone = 'x'
+2026-11-07 06:44:33.860000000  user=auditor  ERROR  42501
+    permission denied for table patients
+    query: SELECT * FROM clinic.patients
+2026-11-07 06:44:35.770000000  user=auditor  LOG  00000
+    AUDIT: SESSION,1,1,READ,SELECT,,,"SELECT r AS role, has_table_privilege(r, 'clinic.patients', 'SELECT') AS can_read_patients FROM unnest(ARRAY['doctor_a','receptionist','db_admin','auditor']) AS r",<not logged>
+    query: 
+2026-11-07 06:44:37.689000000  user=doctor_a  LOG  00000
+    AUDIT: SESSION,1,1,READ,SELECT,,,"SELECT count(*)::int AS visible, min(doctor_id) AS min_doc, max(doctor_id) AS max_doc FROM clinic.patients",<not logged>
+    query: 
+2026-11-07 06:44:39.708000000  user=doctor_b  LOG  00000
+    AUDIT: SESSION,1,1,READ,SELECT,,,"SELECT count(*)::int AS visible, min(doctor_id) AS min_doc, max(doctor_id) AS max_doc FROM clinic.patients",<not logged>
+    query: 
+2026-11-07 06:44:41.536000000  user=doctor_a  LOG  00000
+    AUDIT: SESSION,2,1,READ,SELECT,,,SELECT patient_id FROM clinic.patients WHERE patient_id = 1,<not logged>
+    query: 
+2026-11-07 06:44:43.945000000  user=doctor_a  LOG  00000
+    AUDIT: SESSION,3,1,WRITE,UPDATE,,,UPDATE clinic.patients SET diagnosis_enc = 'tampered' WHERE patient_id = 1,<not logged>
+    query: 
+2026-11-07 06:44:45.852000000  user=db_admin  LOG  00000
+    AUDIT: SESSION,1,1,READ,SELECT,,,SELECT count(*)::int AS visible FROM clinic.patients,<not logged>
+    query: 
+2026-11-07 06:44:49.925000000  user=receptionist  LOG  00000
+    AUDIT: SESSION,1,1,READ,SELECT,,,SELECT * FROM clinic.patients_masked ORDER BY patient_id LIMIT 3,<not logged>
+    query: 
+2026-11-07 06:44:52.338000000  user=receptionist  LOG  00000
+    AUDIT: SESSION,2,1,READ,SELECT,,,SELECT patient_id FROM clinic.patients_masked WHERE phone LIKE '000%',<not logged>
+    query: 
+2026-11-07 06:44:54.759000000  user=doctor_a  LOG  00000
+    AUDIT: SESSION,4,1,READ,SELECT,,,"SELECT patient_id, phone FROM clinic.patients ORDER BY patient_id LIMIT 1",<not logged>
+    query: 
+2026-11-07 06:44:56.941000000  user=db_admin  LOG  00000
+    AUDIT: SESSION,2,1,READ,SELECT,,,"SELECT patient_id, national_id_enc, diagnosis_enc FROM clinic.patients WHERE patient_id = 2",<not logged>
+    query: 

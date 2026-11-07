@@ -1,0 +1,22 @@
+[PASS] T4.1 Doctor A sees only own 100 patients
+    role=doctor_a
+    sql=SELECT count(*)::int AS visible, min(doctor_id) AS min_doc, max(doctor_id) AS max_doc FROM clinic.patients
+    result: allowed, 1 rows, sample=[{"visible":100,"min_doc":1,"max_doc":1}]
+[PASS] T4.2 Doctor B sees only own 100 patients
+    role=doctor_b
+    sql=SELECT count(*)::int AS visible, min(doctor_id) AS min_doc, max(doctor_id) AS max_doc FROM clinic.patients
+    result: allowed, 1 rows, sample=[{"visible":100,"min_doc":2,"max_doc":2}]
+[PASS] T4.3 Doctor A cannot read a patient of doctor B
+    role=doctor_a
+    sql=SELECT patient_id FROM clinic.patients WHERE patient_id = 1
+    result: allowed, 0 rows, sample=[]
+[PASS] T4.4 Doctor A update on a patient of doctor B affects 0 rows
+    role=doctor_a
+    sql=UPDATE clinic.patients SET diagnosis_enc = 'tampered' WHERE patient_id = 1
+    result: allowed, 0 rows, sample=[]
+[PASS] T4.5 DBA policy shows all 200 rows
+    role=db_admin
+    sql=SELECT count(*)::int AS visible FROM clinic.patients
+    result: allowed, 1 rows, sample=[{"visible":200}]
+[PASS] T4.6 Limitation: platform admin role bypass status recorded
+    postgres role: {"rolname":"postgres","rolbypassrls":true}

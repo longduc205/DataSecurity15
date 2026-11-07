@@ -1,0 +1,12 @@
+[PASS] T5.1 Receptionist sees masked phone and email
+    role=receptionist
+    sql=SELECT * FROM clinic.patients_masked ORDER BY patient_id LIMIT 3
+    result: allowed, 3 rows, sample=[{"patient_id":1,"full_name":"Nguyen Hai Giang","phone":"*******181","email":"p***@example.com","doctor_id":2},{"patient_id":2,"full_name":"Nguyen Duc Chi","phone":"*******941","email":"p***@example.com","doctor_id":1},{"patient_id":3,"full_name":"Nguyen Hai Trang","phone":"*******743","email":"p***@example.com","doctor_id":2}]
+[PASS] T5.2 Filtering on the masked column does not reveal the real value
+    role=receptionist
+    sql=SELECT patient_id FROM clinic.patients_masked WHERE phone LIKE '000%'
+    result: allowed, 0 rows, sample=[]
+[PASS] T5.3 Doctor sees the real phone of an own patient
+    role=doctor_a
+    sql=SELECT patient_id, phone FROM clinic.patients ORDER BY patient_id LIMIT 1
+    result: allowed, 1 rows, sample=[{"patient_id":2,"phone":"0007256941"}]
