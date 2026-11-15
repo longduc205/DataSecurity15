@@ -182,7 +182,9 @@ async function testEncryption() {
   }
 }
 
-(async () => {
+// demo.js reuses these one step at a time; only a direct run writes evidence.
+module.exports = { testTransport, testDataApi, testRbac, testRls, testMasking, testEncryption };
+if (require.main === module) (async () => {
   const stamp = new Date().toISOString();
   await testTransport();
   await testNetworkRestrictions();

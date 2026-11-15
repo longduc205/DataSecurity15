@@ -45,7 +45,8 @@ const EXPECTED = [
   });
 
   const body = rows.map((x) => `${x.ts}  user=${x.db_user}  ${x.severity}  ${x.sql_state}\n    ${x.event_message}\n    query: ${x.query}`).join('\n');
-  saveEvidence('08_audit_log.txt', `${audit.length} pgaudit entries, ${denied.length} permission-denied entries\n\nTraceability\n${trace.join('\n')}\n\nEntries\n${body}`);
+  // --no-save: live demo, keep the evidence used by the report unchanged.
+  if (!process.argv.includes('--no-save')) saveEvidence('08_audit_log.txt', `${audit.length} pgaudit entries, ${denied.length} permission-denied entries\n\nTraceability\n${trace.join('\n')}\n\nEntries\n${body}`);
   console.log(redact(`${audit.length} pgaudit entries, ${denied.length} permission-denied entries\n${trace.join('\n')}`));
   process.exitCode = trace.some((t) => t.startsWith('MISSING')) ? 1 : 0;
 })().catch((e) => { console.error(redact(e.message)); process.exit(1); });
