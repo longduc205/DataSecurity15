@@ -38,7 +38,41 @@ Mỗi bước chạy độc lập. Lệnh demo không ghi đè bằng chứng đ
 - Chạy bước 7 **sau** các bước 3–6 và chờ khoảng 1 phút, vì log cần thời gian để vào hệ thống.
 - **Không demo trực tiếp phần chặn IP (T1.4):** bài này chặn mọi kết nối database trong 1–2 phút. Thay vào đó, trình bày Hình 4 trong báo cáo.
 - Nếu một bước lỗi khi đang demo, đừng sửa tại chỗ: chuyển sang video dự phòng hoặc hình tương ứng trong báo cáo.
-- Có thể mở thêm **Table Editor** trên Supabase Dashboard để cho thầy thấy cột `national_id_enc` và `diagnosis_enc` chỉ chứa bản mã.
+
+### Màn hình Supabase tương ứng với từng lệnh
+
+Mỗi bước nên đi theo trình tự: **(1) mở màn hình cấu hình**, **(2) chạy lệnh trên terminal**, **(3) mở log để thầy thấy Supabase đã ghi nhận**.
+
+- Tên menu trên Supabase có thể hơi khác vì giao diện hay thay đổi.
+- Giờ trong log là giờ UTC: **cộng 7 giờ** để ra giờ Việt Nam.
+- Log gói Free chỉ giữ 1 ngày, nên phải chạy lệnh ngay trong buổi bảo vệ thì mới có log để mở.
+
+| Bước | Lệnh | (1) Màn hình cấu hình | (3) Log cần mở và điều cần chỉ |
+|---|---|---|---|
+| 0 | (slide) | **Trang chủ project**: database thật chạy ở Sydney (`ap-southeast-2`) | – |
+| 1 | `npm run demo -- tls` | **Database Settings → SSL Configuration**: công tắc "Enforce SSL" đang bật | **Logs → Pooler (Supavisor)**: dòng `(ESSLREQUIRED) SSL connection is required`, khớp giờ vừa chạy (T1.2). T1.1 không có log: kết nối hợp lệ không bị ghi lại, bằng chứng là chữ `TLSv1.3` trên terminal |
+| (T1.4) | không chạy | **Database Settings → Network Restrictions**: nơi cấu hình danh sách IP | Không có. Chiếu Hình 4 trong báo cáo |
+| 2 | `npm run demo -- api` | **Data API settings → Exposed schemas**: chỉ có `public`, `graphql_public`, **không có `clinic`** | **Logs → API Gateway**, lọc `rest/v1`: dòng `GET \| 406 \| .../rest/v1/patients` (T2.1) và `GET \| 200 \| .../rest/v1/data_api_canary` (T2.2) nằm cạnh nhau. Phụ: **Logs → Postgres** có `CREATE TABLE` / `DROP TABLE` của bảng đối chứng |
+| 3 | `npm run demo -- rbac` | **Database → Roles**: 5 role `doctor_a`, `doctor_b`, `receptionist`, `db_admin`, `auditor` | **Logs → Postgres**, lọc `permission denied`: 4 lần bị từ chối. Giao diện **không hiện tên role**, nên dùng truy vấn Logs Explorer bên dưới hoặc bước 7 |
+| 4 | `npm run demo -- rls` | **Database → Policies**, chọn schema `clinic`: policy `doctor_own_patients`, `doctor_update_own_patients`, `dba_read_patients`... | **Logs → Postgres**, lọc `AUDIT`: các câu `SELECT count(*)` của `doctor_a`, `doctor_b` và câu `UPDATE ... 'tampered'` (chạy được nhưng sửa 0 dòng) |
+| 5 | `npm run demo -- mask` | **Table Editor**, schema `clinic`: so sánh **`patients`** (số thật, ví dụ `0007256941`) với view **`patients_masked`** (`*******941`, `p***@example.com`) | **Logs → Postgres**, lọc `patients_masked`: lễ tân đọc view (T5.1) và **lễ tân thử dò** bằng `WHERE phone LIKE '000%'` (T5.2). Hệ thống không làm lộ dữ liệu nhưng vẫn ghi lại hành vi dò tìm |
+| 6 | `npm run demo -- enc` | **Table Editor → `clinic.patients`**: cột `national_id_enc`, `diagnosis_enc` toàn chuỗi mã vô nghĩa, ngay cả với quyền quản trị cao nhất. **Đây là màn hình trực quan nhất** | **Logs → Postgres**, lọc `national_id_enc`: `db_admin` đã đọc các cột mã hóa nhưng chỉ nhận về bản mã. Giải mã và phát hiện sửa đổi (T6.2–T6.4) diễn ra **trên máy client**, nên không có log trên Supabase: bằng chứng nằm trên terminal |
+| 7 | `npm run demo -- audit` | **Database → Extensions**: `pgaudit` đang bật | **Logs → Explorer**: chạy truy vấn bên dưới để có **cột role** cạnh mỗi hành vi. Terminal hiện bảng `FOUND` với đúng tên role |
+
+**Truy vấn hiện tên role trong Logs → Explorer.** Mình chưa chạy thử trên giao diện Dashboard, chỉ chắc chắn nó chạy qua API. Nếu báo lỗi cú pháp thì dùng terminal ở bước 7.
+
+```sql
+select timestamp, log_attributes['parsed.user_name'] as role, event_message
+from logs
+where source = 'postgres_logs'
+  and (event_message like '%permission denied%' or event_message like '%AUDIT:%')
+order by timestamp desc
+limit 30
+```
+
+**Những log KHÔNG liên quan, đừng chỉ vào:**
+- `network-bans/retrieve`: hệ thống nội bộ Supabase tự gọi.
+- `pgbouncer_logs ... supabase_storage_admin ... SSL established`: kết nối nội bộ của Supabase, không phải của nhóm.
 
 ---
 
